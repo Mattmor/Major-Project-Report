@@ -1,0 +1,86 @@
+\chapter{Implementation}
+
+% The implementation should discuss any issues you encountered as you tried to implement your design. During the work, you might have found that elements of your design were unnecessary or overly complex; perhaps third-party libraries were available that simplified some of the functions that you intended to implement. If things were easier in some areas, then how did you adapt your project to take account of your findings?
+%
+% It is more likely that things were more complex than you first thought. In particular, were there any problems or difficulties that you found during implementation that you had to address? Did such problems simply delay you or were they more significant?
+%
+% You can conclude this section by reviewing the end of the implementation stage against the planned requirements.
+\section{Issues}
+\subsection{ICP library}
+\paragraph{}
+The ICP library from MRPT has options that can change how well the source fit the model and these options needed to be tuned before ICP gave a good result all the time. The example provided in the documentation for the library suggests certain settings to get a good result but these settings weren't outputting a result every time. These settings therefore had to be changed. The issue with changing the settings was that there were only 3 of the 10+ possible settings documented on what they do. The thresholdDist, thresholdAng and corresponding\_points\_decimation settings are well documented and therefore are easily changeable. Other options from the ICP library had to be fiddled with to figure out what they changed and this took a while. Once it was known what effect the option has on the algorithm, a comment was put along where the option was being set explaining what the option did.
+
+\subsection{ICP memory}
+\paragraph{}
+The ICP library that was used was very C like instead of C++ which meant instead being able to use vectors and objects, it used standard types such as float arrays for the model data. This meant that the lasersensor data the robot was sending had to be put into a float array before being used. It also meant the data loaded from the model needed to be put into a multidimensional float array because there were many different models and due to the multidimensional float array needing to be made as the file is being read, this caused a large memory leak. To fix this issue, vectors were used to create the original data structure loaded from the file and when the incoming sensor data needed to be compared, the model for the selected state gets copied into a float array from the vector with all the models in. This new float array is used as the model to compare the incoming source data to.
+
+\subsection{Reversing on the ramp}
+\paragraph{}
+There were issues with the robot regularly getting the front end just into the first ramp and then the ICP match for the next 10 or more states was suggesting for the robot to reverse back down the ramp. At first the thought was that the states were inaccurate so the robot was trying to make up for this by reversing to get close enough to the threshold and move the state forwards but when manually controlling the states, the same issue occurred. The same issue occurred when the robot reverses out of the van and therefore this issue points to the difference in pitch when driving up or down the ramp compared to what the model is looking for. This issue only happens in the simulator and not on the real robot and therefore it could also just be a simulator issue or a model issue.
+
+\subsection{Robot sinking into van model}
+\paragraph{}
+When testing if the robot could fit into the model of the van in the simulator, the robot would clip through the bottom of the van and get stuck. This was fixed after looking at the model file and changing each links collision max\_vel from 0.1 to 0. This change made it so every element in the van model can't move and therefore nothing can clip through it.
+
+\subsection{Robot sliding off the ramps}
+\paragraph{}
+When the robot is driving on either of the ramps, the robot tends to slide slightly to the right depending on the speed. The ramps were therefore changed to have the maximum friction and no slip however, this didn't change much. The robot wheels still have a tendency to slip when on the ramps and this is believed to be another simulator issue as simulators can't ever be perfect.
+
+\subsection{Jerky movement}
+\paragraph{}
+When running the automated movement node, the speed and steering changed very quickly which meant the robot was unstable and this was creating a lot of noise for the LIDAR sensor. To fix this issue, a PID controller was implemented for both the robot speed and direction so the movement is a smooth curve which gets updated every 300ms. The only part of the PID controller that needed to be implemented was the proportional part and this was set to a value below 1 so that the oscillation is always being reduced. This fixed the issue completely and made the whole system a lot more stable.
+
+\subsection{ROS controller}
+\paragraph{}
+The controllers used for idris in gazebosim aren't included in the default ROS installation and therefore needed to be added manually. The specified controllers "position\_controllers/ JointPositionController" were also unable to be found in any standard ROS packages for the ROS version installed however there were controllers that were commented out named "effort\_controllers/JointEffortController" which could be found for the most up to date ROS version. Installing these and uncommenting them fixed the issue. It is likely this issue is just a ROS version issue with different controllers that work in different versions.
+
+\section{Easier than expected}
+\subsection{Recoding lasersensor data}
+\paragraph{}
+The recording node had to take snapshots of the lasersensor data at specific intervals. At the start this was just done on a timer which recorded a snapshot every 2 seconds. This wasn't a very good way of deciding when to take snapshots because the robot could be stationary during the 2 seconds and then the snapshots would be extremely similar. The solution to this was to take snapshots based on the distance travelled. This was easier to implement than expected because only the timer needed to be modified and a distance variable added. The calculation for tracking distance is the time taken since last movement message sent multiplied by the speed in meters per second of the last movement message. The result gets added to a distance variable and when this distance variable goes over a specified value in meters, a snapshot is taken. This worked first time which is why it was easier than expected.
+
+\subsection{Additional Scripts}
+\paragraph{}
+The small helper scripts that were written in Python were fast to be made and started off as prototyping however these scripts worked extremely well and due to them only being helper script, they didn't need to be converted into a more efficient language. These scripts improved the quality of life of the system so that actions which were done manually got converted into easy to use programs. An example of this is the "change\_model \_to\_latest.py" script which targeted the most recently edited file in the data\/ directory and copied the contents of this file to the model.csv file that the system uses. All of these extra Python scripts were simple to implement and easy to use.
+
+\section{Harder than expected}
+\subsection{CMake}
+\paragraph{}
+Learning and using CMake was a lot harder than expected. The most difficult part is trying to debug library configuration errors, especially as CMake outputs hardly any useful information in its error messages. After reading a lot of CMake documentation and stackoverflow threads, a solution was found for the library configuration issues but several weeks was spent on this issue. A similar experience occurred when installing the required libraries on idris in which at least a whole day was spent trying to configure CMake to install and find the correct libraries.
+
+\subsection{Changing states}
+\paragraph{}
+Keeping an accurate track of which state the ICP should be comparing against was more of a difficult task than anticipated. This issue was amplified by the reversing on the ramp issue because when checked manually, the next state which made the robot move in the correct direction on the ramps was at least 10 states in front of the current state. This was made more accurate by including the "goodness" measure to make sure the source and the model were at least similar and giving a good enough output. More additions to the code were made to help advance the state if the robot had been previously moving in one direction and suddenly wanted to change direction. This addition incremented the state every time the robot wanted to change direction and improved the accuracy of the states if the state is inaccurate. If the state was accurate, the robot would eventually catch up with the advanced state by just moving towards the new goal and updating the state when this goal had been reached.
+
+\subsection{Steering}
+\paragraph{}
+The steering was an extremely difficult problem due to the likelihood of the y direction wanting to make the steering go a certain direction and the angle wanting to go the opposite direction. This was difficult to implement due to the steering method needing to prioritise the y direction before the angle. This way, the robot can get into the correct position before straightening up and aligning itself to the correct angle. A lot of fiddling with the steering values happened and a couple of weeks were spent on perfecting it. When tried on the real robot, there were still some issues with the robot over steering which had to be tuned in such a way that the movement is smooth.
+
+\section{Limitations}
+\subsection{Starting angle}
+\paragraph{}
+The starting angle is very important in whether the system can successfully drive the path or not. The issue is that ICP needs a good enough starting position to be able to match correctly. After thorough testing, it seems the maximum angle is roughly 10 degrees off centre for the system be successful. Anything more than 10 degrees off centre and resulting match's "goodness" factor decreases below the set threshold of 70\%.
+
+\subsection{Filtered laserscan}
+\paragraph{}
+The incoming laserscan data gets filtered so that it only looks at the middle 80 degrees and only up to 10 meters. This is because the van is likely to be closer than 10 meters and directly in front of the robot. This was implemented to help the ICP matching find a clear match and make sensor recordings more generalised so the same recording could be used multiple times in a mostly static environment. This change however, contributed to the starting angle limitation because it limited the amount of data the matching algorithm had to get a clear match when not completely aligned.
+
+\section{Review against the requirements}
+\paragraph{}
+TODO
+% TODO: WITH THE EVALATION
+% That brings the list of objectives to: The ICP Model matching program, The recording model program, The robot control program and simulated test environment with models to scale.
+
+% \begin{itemize}
+%   \item Issues: CMake not finding libraries. ICP library options needed tuning to give a good output. Memory leak. Bug with going the wrong way on the ramp. Model max_vel issue with robot sinking into van/sliding off the ramp. Controlling speed needed an extra PID (kp) to be stable. Same with steering. Steering calculation is awkward with y direction and angle needing to be combined. ROS controller issues
+%   \item Easier than expected: Grabbing lasersensor data at specific intervals and saving to CSV files, Converting ICP into movement
+%   \item Harder than expected: CMake, Deciding when to change states, Steering in a good way.
+%   \item Bugs: Memory leaks because c++/c, States aren't perfect so modulation happens occasionally,
+%   \item MRPT Settings (that needed changing): ALPHA needs to be 0 to work. Distances can be changed, corresponding_points_decimation needs to be low, InitialPose needs to be ~0.20cm behind (because thats where the robot would be)
+%   \item Needed to take averages for a better reading(Both recording and working out movement)
+%   \item When automated driving sometimes the transformation was too far out to be right. When this happens, advance the snapshot
+%   \item Limited sensordata to be middle 80 degrees instead of the whole 180 (works on all robots), Filtered sensordata to ignore values over 10m away.
+%   \item Movemnet comands need to use cmd_vel to work with all robots rather than just double_ackermann.
+%   \item Putting MRPT onto idris was a pain in the ass. (dependancies)
+%   \item Review against chapter 2
+% \end{itemize}

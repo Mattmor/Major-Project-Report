@@ -1,0 +1,80 @@
+\chapter{Evaluation}
+
+% Examiners expect to find a section addressing questions such as:
+\section{Requirements}
+\paragraph{}
+The requirements for this system were correctly identified at the beginning. The system needed to be able to automatically drive into the van and in doing so, a specific set of patterns can be detected with use of the LIDAR.
+
+\section{Design}
+\paragraph{}
+The design was thought out and planned accordingly. Some changes were needed to the overall design in the amount of nodes and the node interactions.
+
+\paragraph{}
+The major changes that need to be made to make this system better if started again would be to use the ICP model matching algorithm as a service that can be called on rather than having it continuously running and sending the resulting transformation. By using it as a service, the whole system can be controlled by the automated driving node which would result in a hybrid control system which could choose if the robot needed to act upon updated information or continue with the path originally planned.
+
+\paragraph{}
+The hardest part of this project was translating the result from the ICP algorithm into movement which guided the robot along the correct path while recovering from any errors that might make it move slightly off course. An easier way of doing this would be to use pre-existing path planning tools to plan ahead so the system could be more robust.
+
+\paragraph{}
+The recording node was well thought out from the start and needed minimal changes to work as intended. When it was realised that the best way to record the data would be at specific distances rather than user defined due to the ease of use and reliability, it improved the overall workflow of the system drastically.
+
+\section{Use of tools}
+The tools that were used were suitable for this project however, a few extra tools could have been used to make the system more reliable and to help debug the issues that occurred.
+
+\subsection{ROS path planning}
+\paragraph{}
+Possible tools that would have helped include using the ROS navigation stack to plan a path to the target location. This would have saved a lot of time in trying to get the robot steering to match the direction that the ICP algorithm was returning. It also would have resulted in a likely better coping system with misalignment and bad positioning due to turning the steering into a deliberative system which can react to errors rather than a fully reactive system.
+
+\subsection{Visualisation of the data}
+\paragraph{}
+A tool that would have also helped would have been some sort of tool to visualise the data that the recording node took. This would have been a helpful debugging tool when figuring out certain behaviours instead of looking at the raw numbers. A tool such as rvis\cite{RVIS}, which is built into ROS, could help with such visualisations as it can take the data produced by the laserscan in real time and visualise it against the model.
+
+\section{Testing}
+\paragraph{}
+The testing for this system has been thorough. None of the testing is automated but this is difficult to accomplish when working with a fully reactive robotic system. Tests were always ran multiple times to make sure the result is always reliable.
+
+\section{Project aims}
+\paragraph{}
+This project set out to get Aberystwyth universities large robots to be able to automatically load themselves into a van. The final part of testing proves that the system that has been created fulfils this aim. There are however some limitations which this system has which need to be known before using it.
+
+\paragraph{}
+These limitations are that the robot must be mostly aligned with the ramp before starting, the robot must be mostly in the right position before starting and the robot must not be too far away from the ramp before starting. If all three of these limitations are met then the system will work.
+
+
+% \begin{itemize}
+%    \item Were the requirements correctly identified?
+%    \begin{itemize}
+%      \item Yes, Patern matching and moving in relation to that
+%    \end{itemize}
+%    \item Were the design decisions correct?
+%    \begin{itemize}
+%      \item Yes, it works but could have been better
+%    \end{itemize}
+%    \item Could a more suitable set of tools have been chosen?
+%    \begin{itemize}
+%      \item Maybe ROS navigation stack be used for more precice movement.
+%    \end{itemize}
+%    \item How well did the software meet the needs of those who were expecting to use it?
+%    \begin{itemize}
+%      \item TODO: Edit this after running on the real robot
+%    \end{itemize}
+%    \item How well were any other project aims achieved?
+%    \begin{itemize}
+%      \item I learned a lot more abour ROS and how to process sensordata.
+%    \end{itemize}
+%    \item If you were starting again, what would you do differently?
+%    \begin{itemize}
+%      \item Spend more time looking up movement strategies as that was the troubling part.
+%      \item Use the automated movement to control everything and the ICP node as a service rather than ICP sending messages whenever it can and automated movement only partly in control, This is for easier searching.
+%    \end{itemize}
+% \end{itemize}
+%
+% Other questions can be addressed as appropriate for a project.
+%
+% The questions are an indication of issues you should consider. They are not intended as a specification of a list of sections.
+%
+% The evaluation is regarded as an important part of the project report; it should demonstrate that you are capable not only of carrying out a piece of work but also of thinking critically about how you did it and how you might have done it better. This is seen as an important part of an honours degree.
+%
+% There will be good things in the work and aspects of the work that could be improved. As you write this section, identify and discuss the parts of the work that went well and also consider ways in which the work could be improved.
+%
+% In the latter stages of the module, we will discuss the evaluation. That will probably be around week 9, although that differs each year.

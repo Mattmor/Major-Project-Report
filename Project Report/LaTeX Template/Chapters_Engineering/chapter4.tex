@@ -1,0 +1,159 @@
+\chapter{Testing}
+
+% Detailed descriptions of every test case are definitely not what is required here. What is important is to show that you adopted a sensible strategy that was, in principle, capable of testing the system adequately even if you did not have the time to test the system fully.
+%
+% Provide information in the body of your report and the appendix to explain the testing that has been performed. How does this testing address the requirements and design for the project?
+%
+% How comprehensive is the testing within the constraints of the project?  Are you testing the normal working behaviour? Are you testing the exceptional behaviour, e.g. error conditions? Are you testing security issues if they are relevant for your project?
+%
+% Have you tested your system on ``real users''? For example, if your system is supposed to solve a problem for a business, then it would be appropriate to present your approach to involve the users in the testing process and to record the results that you obtained. Depending on the level of detail, it is likely that you would put any detailed results in an appendix.
+%
+% Whilst testing with ``real users'' can be useful, don't see it as a way to shortcut detailed testing of your own. Think about issues discussed in the lectures about until testing, integration testing, etc. User testing without sensible testing of your own is not a useful activity.
+%
+% The following sections indicate some areas you might include. Other sections may be more appropriate to your project.
+
+\section{Overall Approach to Testing}
+\paragraph{}
+In general, robots that work with sensors are difficult to reliably test due to factors such as sensor noise, unpredictable behaviours and errors which can throw the whole system off. Due to this system being fully reactive, any inaccurate sensor readings have the possibility of throwing the system into error states in which it has to try to recover from. These possible error states have to be thoroughly tested to make sure the recovery is safe and reliable. All testing was done manually through either observing robot behaviours when the robot was driving automatically or by controlling the robot manually and observing the desired robot movement.
+
+Video recordings of most of the following tests can be viewed in the tests folder within the project. All of these recordings are taken of the final working system and do not represent the system as it was when the issues occurred.
+
+% \begin{itemize}
+%   \item Hard to test robots and how they work.
+%   \item Test environment in gazebo.
+%   \item Manual testing by manually changing the states.
+%   \item Observation testing while looking at logs
+%   \item Edge case testing (How far out and what angle can the robot be at while still working)
+% \end{itemize}
+
+\section{Testing}
+\subsection{ICP algorithm speed}
+\paragraph{}
+3 individual ICP libraries were tested for how fast they could run and give an answer on the same set of data. These 3 libraries were MRPT-ICP, libicp and libtopointmatcher. Figure TODO shows the results of each algorithm. The results ended up being fairly similar in speed and therefore any of the three libraries could be used for the system in processing data in real time. The decision to use MRPT came down to its ease of use and extra information that it returns.
+
+\subsection{Simulated environment testing}
+\paragraph{}
+Multiple test environments were created in a simulator, the first being a maze of walls which can be driven through by the robot. These walls were also used as reference points for further testing and simple box shaped objects were added to make the different areas more unique for matching.
+
+\paragraph{}
+A scale model of the van was created in the simulator which consisted of 2 same sized ramps and a box shaped container for the robot to drive into. Measurements were taken of the real van so the simulated van was an accurate scale model. Figure TODO shows the measurements taken for each part of the van and figure TODO shows the scale model van in the gazebo simulator.
+
+\paragraph{}
+Due to the van having hydraulics control the height, measurements were taken of the lowest possible height and also the highest possible height so that the simulated van's height could be the middle of the two. The minimum height is 44 cm from the ground and the maximum height is 57 cm from the ground therefore, the simulated van was created with a height of 50 cm off the ground which is near the middle. Different height van models were planned but not created due to the time constraint and because other issues were a priority.
+
+
+\subsection{Manual environment testing}
+\paragraph{}
+The first part that needed testing in the simulated environment was that the robot could use the ramps from the van model to drive fully into the van without any issues. As talked about in section 3, there were issues with the robot clipping through the van's interior floor and also issue with the robot sliding off the van's ramps. These were glaring issues highlighted when first testing the van model by trying to drive the robot manually into the van. Other tests were done such as pausing the simulator and using the simulator tools to pick the robot up and move it into the van in such a way that when unpaused, the robot is fully in the van at its likely end location. This was a good first test to do because it highlighted a lot of issues with the original van model which could be fixed.
+
+\paragraph{}
+The recording node needed to be tested to make sure the data it was recording is accurate data. This was done by using the boundary walls of the maze world at one of the corners. The robot was set to record all data while slowly driving towards the outside corner of the maze. This way the data was predictable in that half of the laserscan data should be values which decrease and the other half should be infinite values. This test showed that the recording node was working properly as the values matched the prediction.
+
+\paragraph{}
+Another test was done to make sure these values were accurate by using a blank wall of the outside of the maze. The robot was set to slowly drive towards the wall with the data being recorded and therefore the data should show all values starting at large numbers and decreasing with every snapshot. The resulting data showed exactly what was predicted and was therefore working.
+
+
+\subsection{Automated node testing}
+\subsubsection{Driving towards a wall}
+\paragraph{}
+The automated driving node was first tested by using a wall in the maze to drive towards. To make this easier for the model matching algorithm, a large cylinder was placed just in front of the wall with two cubes placed either side of the cylinder. The robot was set to record and manually driven up to just in front of the cylinder to gather data for the model. The robot was then placed in roughly the same starting position and orientation and the automated driving launch file was started so that the robot behaviour could be observed.
+
+\paragraph{}
+The ideal behaviour was for the robot to follow the path that was just recorded perfectly from start to finish and stop when the robot was close to the cylinder. This was mainly for testing the steering correction as little changes in steering could cause big ripple effects with the robot over compensating if the steering oscillation isn't being reduced. This test was usually successful but it did highlight an issue with both the y direction and the angle needing to be reversed to get the correct direction.
+
+\paragraph{}
+After doing this test from start to finish, the model was flipped to test if the robot could complete the same path in reverse. This way of testing the robot first driving towards the wall and then using the same model to drive away from the wall was repeated multiple times to test how reliable the system is. It usually ended up with the robot slowly getting more misaligned after 3 to 4 times driving the path forwards and then in reverse. Changes were made each time until the steering could recover from these misalignments.
+
+\subsubsection{Driving into the van}
+\paragraph{}
+The automated driving node was also regularly tested at how well it could drive into the van model. This was tested by recording the robot driving into the van manually and then reloading the world so the robot was in the exact same position that it started from. Many issues were highlighted from running this test such as how the robot reliably reverses down the ramps for about half a meter before continuing back up the ramp into the van.
+
+\paragraph{}
+While driving the incorrect way on the ramp, it was noted that the robot still tries to correct itself by steering towards the centre of the ramps like it should do. The only anomaly found in the data is the distance to the next checkpoint being incorrect. This was determined to be the robot seeing different distances to the back of the van to what it should have seen due to the ramps making the LIDAR get data from a different angle of pitch.
+
+
+\subsubsection{Driving out of the van}
+\paragraph{}
+Driving out of the van was usually tested after the robot was successful when driving into the van. Occasionally this required a manual adjustment so the robot was aligned to correctly reverse out of the van as the steering doesn't correct very quickly and is likely to collide with the van walls. Reversing out of the van was always a harder challenge for the system due to only using the front LIDAR which effectively made the robot blind to whatever was behind it.
+
+\paragraph{}
+Many adjustments to the steering and state tracking were made after this test as the robot regularly failed by either slipping off the final ramp, which was likely a simulation issue, or by driving back into the van just after the first ramp. The robot driving back into the van issue was likely due to a combination of the ICP matching at different pitches and the state being slightly behind.
+
+\subsection{Stress testing}
+\paragraph{}
+Stress testing was done mostly by observing the maximum angle in which the robot could be placed at and still recover from. Different starting positions were also tested to make sure the system could recognise when the robot needs to reposition.
+
+\subsubsection{Driving towards a wall at different angles}
+\paragraph{}
+The first stress test that was made used the maze level with the cylinder and two cubes. The normal recording in which the robot is placed face on to the cylinder and made to drive straight towards it was made and then the robot was reversed and put at increasingly misaligned angles. With the angles that were roughly under 5 degrees, the system could recover and straighten up to go directly towards the cylinder. With angles above 5 degrees, the robot had occasionally recovered and drove to the cylinder but if it didn't recover, it would drive towards the side of one of the boxes. With any angle above 10 degrees, the robot wouldn't recover and instead just drive towards the side of the box it was oriented towards. It likely did this due to the field of view on the LIDAR being limited to 80 degrees and therefore could only detect 2 of the 3 objects. It did however reliably get guided towards the side of one of the cubes. This suggested the match was still trying to work because the side of the cube gives mostly the same values the side of a cylinder gives.
+
+\subsubsection{Driving through the maze to test the maximum steering}
+\paragraph{}
+The maze level was also used for the purpose it was made, to test how sharp of a turn the robot can take. The robot was placed somewhere in the middle of the maze just before a u-turn and was recorded while driving manually around the corner. The robot was then placed in roughly the same position and observed trying to make the u-turn automatically. The robot never successfully automatically drove around the u-turn but this test did give some valuable insight into how much the system can deal with sharp turns. The robot would usually get half-way around the turn and then fail to recover. This suggests the system can deal with roughly 90 degree turns if the environment is well-defined but not 180 degree turns. Due to the system only needing to deal with small misalignments, this should be sufficient steering to drive into the van.
+
+This test also highlighted if any of the steering components were making the robot drive in the wrong direction and was very useful in fixing these issues.
+
+\subsubsection{Driving into the van at different starting positions and angles}
+\paragraph{}
+The van model was used extensively to test different starting positions and angles. A recording of the robot driving straight into the van was taken and then the robot was placed at different starting positions in front or behind the original starting position. The robot was also tested by being placed at varying angles to the ramp of the van to see if the system could recover from certain starting positions. The system always seemed to recover from being in front or behind the original starting position. If the starting angle was below 5 degrees, the system would always be able to recover and drive up the ramp. If the starting angle was above 10 degrees misalignment, the system would never be able to recover and would fail to drive into the van. This seems to suggest a limitation with the model matching in which the robot needs to be in a starting position which isn't too far off the original recording to be successful in driving its set path.
+
+\subsubsection{Driving out of the van at different angles}
+\paragraph{}
+Driving back out of the van from different angles was aimed at testing how fast the system could cope with misalignments. Due to the walls of the van being less than a meter away from the robot, the system would have to change direction quickly to avoid colliding with them. The system regularly failed this test if the angle was too large due to the steering being fully reactive and needing time to correct itself. This adds to the limitations of the system needing some space to correct itself but should not be much of an issue due to the robot needing to be correctly aligned at the back of the van for it to be tied to the van and not roll around in transport.
+
+\subsection{Real world robot testing}
+A few tests were done with the real robot first around the robot shed and then driving into the real van.
+\subsubsection{Driving around the robot shed}
+\paragraph{}
+The first tests were to make sure the system could deal with driving correct paths in the real world. The robot was recorded driving up to a bin which was placed just in front of a wall to make model matching easier. The robot was then recorded driving in a straight line up to the bin and then driven back to roughly the same starting position. The real robot was set to automatically drive the recorded path and it successfully drove the correct path up to the bin and stopped. This test was done multiple times to make sure the system is reliable and it completed the path successfully each time.
+
+\paragraph{}
+The second test using the same data was to see if the system could deal with positions starting in front and behind the original starting position. This test was also done multiple times to make sure it was reliable and the system successfully dealt with the different distances each time.
+
+\paragraph{}
+With different distances tested, the last part that needed testing was the different starting angles. This test was ran multiple times at different angles just to be thorough. As with the same test in the simulator, with low angles, the system usually is able to recover and with large angles, the system usually fails to recover. Therefore, the starting position for the robot must be mostly aligned for the system to work.
+
+\subsubsection{Driving into the van}
+\paragraph{}
+The last test was getting the robot to automatically drive into the van which is the original purpose of the project. The robot was set up just before the ramps and aligned correctly before being set to record and manually being driven into the van. The robot was then reversed out of the van and the automatic driving system launched to test if the robot could drive into the van automatically. The robot then successfully drove into the van and stopped at the end of the recorded path. It corrected for small errors which would have made the robot fall off the ramp but finished slightly angled to the right. The same test was ran again for reliability and the exact same result happened with the robot ending slightly angled to the right. This angling is likely due to the model recording noisy data at the end state and this therefore guided the robot to steer to the right at the end.
+
+% \begin{itemize}
+%   \item Testing driving around the robot shed.
+%   \item Testing driving into the van automatically.
+% \end{itemize}
+
+% \subsection{Driving in a simulated world automatically}
+% \begin{itemize}
+%   \item Made simulated envrionment with walls for the robot to record and replay while driving around
+% \end{itemize}
+%
+% \subsection{Driving into the van}
+%   \subsection{Manually}
+%     \begin{itemize}
+%       \item Testing weather the scale model robot can drive into the scale model van.
+%       \item Tested at different starting Distances
+%       \item Tested at different starting angles
+%     \end{itemize}
+%
+%   \subsection{Automatically}
+%     \begin{itemize}
+%       \item Testing weather the scale model robot can drive into the scale model van.
+%       \item Tested at different starting Distances
+%       \item Tested at different starting angles
+%     \end{itemize}
+%
+% \subsection{Driving out of the van}
+% \subsection{Manually}
+% \begin{itemize}
+%   \item Testing weather the scale model robot can drive back out of the scale model van.
+%   \item Testing with new data.
+%   \item Testing with the same data as driving in but flipped
+% \end{itemize}
+%
+% \subsection{Automatically}
+% \begin{itemize}
+%   \item Testing weather the scale model robot can drive back out of the scale model van.
+%   \item Testing with new data.
+%   \item Testing with the same data as driving in but flipped
+% \end{itemize}
+%

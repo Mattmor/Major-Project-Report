@@ -1,0 +1,3 @@
+# MMP Student Information
+
+This repository is for students who are taking one of the Major or Minor project modules, CS39440, CC39440, CS39620, CC39620, CS39360 or CS39760. This repository is in addition to the main resources that are available on the [Blackboard module](https://blackboard.aber.ac.uk/webapps/blackboard/content/listContent.jsp?content_id=_1208141_1&course_id=_21547_1) for 2018-2019.

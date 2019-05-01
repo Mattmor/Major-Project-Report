@@ -1,0 +1,35 @@
+\chapter{Design after iterations and improvements}
+
+Due to using a form of the agile methodology, each sprint iterated and improved parts of the design. This chapter goes into depth on what these changes and improvements were and why they needed to happen. Some of these changes will be referred to in the implementation chapter.
+
+\section{Overall architecture changes}
+\paragraph{}
+The file format for storing the LaserScan distance data wasn't originally decided. During a sprint a couple of weeks in when the recording node was being made, a decision needed to be made for what format the values should be stored in. The data structure the file needs to store is an array of floats for each snapshot and therefore the format could be quite simple. XML and json were both considered and both rejected due to usually being used for more complex structures even though they both have tools and libraries to parse the data into the program. A much simpler format such as spreadsheets tsv (tab spaced values) or csv (comma spaced values) were considered due to being lightweight and simple to use. In the end csv format is used due to its simplicity of only needing to split the values by comma to retrieve the data and its readability from a human perspective.
+
+\section{Detailed node designs and interaction changes}
+Here is the updated detailed node designed as of the last sprint of the project. These nodes and interactions can be visualised in a diagram as shown in figure TODO.
+\subsection{Recording node}
+\paragraph{}
+The method in which snapshots get taken was changed from relying on user input to being taken automatically depending on the distance travelled. The distance gets calculated when movement messages get received by this node and the distance since the last snapshot is calculated and then added to the distance counter. When the distance counter gets above a set threshold, a snapshot gets taken and stored in a new line in the csv file. This method repeats until the robot has driven the full path manually. When the robot is at the end of its route and the recording can be stopped, one last snapshot is taken before closing the file to make sure the end position is accurate.
+
+This improvement made the whole system more automated as it is no longer waiting on user input. It also made the model more consistent with a set distance between snapshots and should therefore help with guiding the robot along the correct path.
+
+\subsection{ICP compare node}
+\paragraph{}
+A useful metric on deciding if the match fit well enough or not is the "goodness" factor in which MRPT's ICP library generates for every match. This goodness factor represents how well the source matches the model and if this value is low then it is an indicator that the wrong model is being used. This goodness factor is therefore published with the movement data so the automatic node can use it and react accordingly by changing state if this value gets too low.
+
+\subsection{Automatic driving node}
+\paragraph{}
+There were multiple issues with the original automatic driving node plan, one of which was deciding how to convert the directional transformation into robotic movement. There are multiple ways to work out where the robot needs to drive such as using pre-existing path planning algorithms or by putting weights on the y and angle values so that both eventually line up. A path planning library is built into ROS as a \cite{ROS-Path} but this way seemed unnecessary complex for this system and is usually used for checkpoints that are far away and may have obstacles in the way. I therefore went with a reactionary based system to simplify the design.
+
+\paragraph{}
+With the driving being a reaction based system, the x position is used to determine the speed the robot should be going and when to change state. The closer the robot is from the x position, the slower it should go so there aren't many anomalies. When the x position reaches a pre-determined threshold, the state can be incremented if the current state isn't the final one. When the x position is low enough and the model is on the last state, the end condition has been reached and the robot can stop due to being at the end of its route. For steering, if the y position is out by a pre-determined threshold, it gets added to the direction in which the robot needs to steer. If the angle is out by a pre-determined threshold, it also gets added to the direction in which the robot needs to steer. Weights were put onto the y and angle values in such a way that the system priorities getting into the correct position first and then the correct alignment. Once the speed and direction have been calculated, it gets put into a cmd\_vel message and published to the robot which gets guided through the checkpoints until the end state has been reached.
+
+\section{Message changes}
+\subsection{ICP direction message}
+\paragraph{}
+As mentioned in the ICP compare node, a goodness factor was included into the ICP\_direction message as another float and used for recognising when the source and model had a bad match. The updated message format can be seen in figure TODO.
+
+\section{User configuration changes}
+\paragraph{}
+Due to the recording node improving on when snapshots are taken, no user input is needed when manually driving the robot along the path for the first time. This is a good improvement because it stops the user from having to multi-task with driving the robot and taking snapshots at the same time. It also streamlines the whole setup of the system as it simplifies what the user has to do before the automated part of the system can run.
