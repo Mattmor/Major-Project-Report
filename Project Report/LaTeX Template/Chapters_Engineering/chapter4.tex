@@ -29,14 +29,14 @@ Video recordings of most of the following tests can be viewed in the tests folde
 \section{Testing}
 \subsection{ICP algorithm speed}
 \paragraph{}
-3 individual ICP libraries were tested for how fast they could run and give an answer on the same set of data. These 3 libraries were MRPT-ICP, libicp and libtopointmatcher. Figure TODO shows the results of each algorithm. The results ended up being fairly similar in speed and therefore any of the three libraries could be used for the system in processing data in real time. The decision to use MRPT came down to its ease of use and extra information that it returns.
+Three individual ICP libraries were tested for how fast they could run and give an answer on the same set of data. These three libraries were MRPT-ICP, libicp and libtopointmatcher. Figure TODO shows the results of each algorithm. The results ended up being fairly similar in speed and therefore any of the three libraries could be used for the system in processing data in real time. The decision to use MRPT came down to its ease of use and extra information that it returns.
 
 \subsection{Simulated environment testing}
 \paragraph{}
 Multiple test environments were created in a simulator, the first being a maze of walls which can be driven through by the robot. These walls were also used as reference points for further testing and simple box shaped objects were added to make the different areas more unique for matching.
 
 \paragraph{}
-A scale model of the van was created in the simulator which consisted of 2 same sized ramps and a box shaped container for the robot to drive into. Measurements were taken of the real van so the simulated van was an accurate scale model. Figure TODO shows the measurements taken for each part of the van and figure TODO shows the scale model van in the gazebo simulator.
+A scale model of the van was created in the simulator which consisted of two same sized ramps and a box shaped container for the robot to drive into. Measurements were taken of the real van so the simulated van was an accurate scale model. Figure TODO shows the measurements taken for each part of the van and figure TODO shows the scale model van in the gazebo simulator.
 
 \paragraph{}
 Due to the van having hydraulics control the height, measurements were taken of the lowest possible height and also the highest possible height so that the simulated van's height could be the middle of the two. The minimum height is 44 cm from the ground and the maximum height is 57 cm from the ground therefore, the simulated van was created with a height of 50 cm off the ground which is near the middle. Different height van models were planned but not created due to the time constraint and because other issues were a priority.
@@ -44,7 +44,7 @@ Due to the van having hydraulics control the height, measurements were taken of 
 
 \subsection{Manual environment testing}
 \paragraph{}
-The first part that needed testing in the simulated environment was that the robot could use the ramps from the van model to drive fully into the van without any issues. As talked about in section 3, there were issues with the robot clipping through the van's interior floor and also issue with the robot sliding off the van's ramps. These were glaring issues highlighted when first testing the van model by trying to drive the robot manually into the van. Other tests were done such as pausing the simulator and using the simulator tools to pick the robot up and move it into the van in such a way that when unpaused, the robot is fully in the van at its likely end location. This was a good first test to do because it highlighted a lot of issues with the original van model which could be fixed.
+The first part that needed testing in the simulated environment was that the robot could use the ramps from the van model to drive fully into the van without any issues. As talked about in chapter three, there were issues with the robot clipping through the van's interior floor and also issue with the robot sliding off the van's ramps. These were glaring issues highlighted when first testing the van model by trying to drive the robot manually into the van. Other tests were done such as pausing the simulator and using the simulator tools to pick the robot up and move it into the van in such a way that when unpaused, the robot is fully in the van at its likely end location. This was a good first test to do because it highlighted a lot of issues with the original van model which could be fixed.
 
 \paragraph{}
 The recording node needed to be tested to make sure the data it was recording is accurate data. This was done by using the boundary walls of the maze world at one of the corners. The robot was set to record all data while slowly driving towards the outside corner of the maze. This way the data was predictable in that half of the laserscan data should be values which decrease and the other half should be infinite values. This test showed that the recording node was working properly as the values matched the prediction.
@@ -62,7 +62,7 @@ The automated driving node was first tested by using a wall in the maze to drive
 The ideal behaviour was for the robot to follow the path that was just recorded perfectly from start to finish and stop when the robot was close to the cylinder. This was mainly for testing the steering correction as little changes in steering could cause big ripple effects with the robot over compensating if the steering oscillation isn't being reduced. This test was usually successful but it did highlight an issue with both the y direction and the angle needing to be reversed to get the correct direction.
 
 \paragraph{}
-After doing this test from start to finish, the model was flipped to test if the robot could complete the same path in reverse. This way of testing the robot first driving towards the wall and then using the same model to drive away from the wall was repeated multiple times to test how reliable the system is. It usually ended up with the robot slowly getting more misaligned after 3 to 4 times driving the path forwards and then in reverse. Changes were made each time until the steering could recover from these misalignments.
+After doing this test from start to finish, the model was flipped to test if the robot could complete the same path in reverse. This way of testing the robot first driving towards the wall and then using the same model to drive away from the wall was repeated multiple times to test how reliable the system is. It usually ended up with the robot slowly getting more misaligned after three to four times driving the path forwards and then in reverse. Changes were made each time until the steering could recover from these misalignments.
 
 \subsubsection{Driving into the van}
 \paragraph{}
@@ -85,7 +85,7 @@ Stress testing was done mostly by observing the maximum angle in which the robot
 
 \subsubsection{Driving towards a wall at different angles}
 \paragraph{}
-The first stress test that was made used the maze level with the cylinder and two cubes. The normal recording in which the robot is placed face on to the cylinder and made to drive straight towards it was made and then the robot was reversed and put at increasingly misaligned angles. With the angles that were roughly under 5 degrees, the system could recover and straighten up to go directly towards the cylinder. With angles above 5 degrees, the robot had occasionally recovered and drove to the cylinder but if it didn't recover, it would drive towards the side of one of the boxes. With any angle above 10 degrees, the robot wouldn't recover and instead just drive towards the side of the box it was oriented towards. It likely did this due to the field of view on the LIDAR being limited to 80 degrees and therefore could only detect 2 of the 3 objects. It did however reliably get guided towards the side of one of the cubes. This suggested the match was still trying to work because the side of the cube gives mostly the same values the side of a cylinder gives.
+The first stress test that was made used the maze level with the cylinder and two cubes. The normal recording in which the robot is placed face on to the cylinder and made to drive straight towards it was made and then the robot was reversed and put at increasingly misaligned angles. With the angles that were roughly under 5 degrees, the system could recover and straighten up to go directly towards the cylinder. With angles above 5 degrees, the robot had occasionally recovered and drove to the cylinder but if it didn't recover, it would drive towards the side of one of the boxes. With any angle above 10 degrees, the robot wouldn't recover and instead just drive towards the side of the box it was oriented towards. It likely did this due to the field of view on the LIDAR being limited to 80 degrees and therefore could only detect two of the three objects. It did however reliably get guided towards the side of one of the cubes. This suggested the match was still trying to work because the side of the cube gives mostly the same values the side of a cylinder gives.
 
 \subsubsection{Driving through the maze to test the maximum steering}
 \paragraph{}
@@ -116,6 +116,15 @@ With different distances tested, the last part that needed testing was the diffe
 \subsubsection{Driving into the van}
 \paragraph{}
 The last test was getting the robot to automatically drive into the van which is the original purpose of the project. The robot was set up just before the ramps and aligned correctly before being set to record and manually being driven into the van. The robot was then reversed out of the van and the automatic driving system launched to test if the robot could drive into the van automatically. The robot then successfully drove into the van and stopped at the end of the recorded path. It corrected for small errors which would have made the robot fall off the ramp but finished slightly angled to the right. The same test was ran again for reliability and the exact same result happened with the robot ending slightly angled to the right. This angling is likely due to the model recording noisy data at the end state and this therefore guided the robot to steer to the right at the end.
+
+\section{Possible testing improvements}
+\subsection{Testing harnesses}
+\paragraph{}
+Test harnesses can be built to test how well the system does when making specific changes. To do this, pre-recorded example data is needed of each test and launch files are needed to launch each test case. The automated driving program is then tested on each example and how the robot behaves gets recorded and compared against how it did previously. This type of testing is useful in showing how changes affect how well the robot can deal with certain situations and gives a clear metric if changes improve the system. This method of testing wasn't used due to time constraints but it would have helped a lot when figuring out which changes were good and which changes were bad.
+
+\subsection{Recording robot position}
+\paragraph{}
+The robot's position can be recorded in the simulation and be used to compare how different the automated driving path deviates from the original recording's path. By capturing the robot's position at set intervals,the differences in current robot position compared to the position when recording would relate to how well the steering is working. By using this method, changes can be made to behaviours and the results of the robot position at certain points will make it clear how the changes affected the robot's driving ability. This way of testing also wasn't used due to running out of time but it would have been a great metric to work out how well the system works.
 
 % \begin{itemize}
 %   \item Testing driving around the robot shed.

@@ -1,11 +1,25 @@
 %\addcontentsline{toc}{chapter}{Development Process}
 \chapter{Original Design}
 
-% You should concentrate on the more important aspects of the design. It is essential that an overview is presented before going into detail. As well as describing the design adopted it must also explain what other designs were considered and why they were rejected.The design should describe what you expected to do, and might also explain areas that you had to revise after some investigation.Typically, for an object-oriented design, the discussion will focus on the choice of objects and classes and the allocation of methods to classes. The use made of reusable components should be described and their source referenced. Particularly important decisions concerning data structures usually affect the architecture of a system and so should be described here.How much material you include on detailed design and implementation will depend very much on the nature of the project. It should not be padded out. Think about the significant aspects of your system. For example, describe the design of the user interface if it is a critical aspect of your system, or provide detail about methods and data structures that are not trivial. Do not spend time on long lists of trivial items and repetitive descriptions. If in doubt about what is appropriate, speak to your supervisor.You should also identify any support tools that you used. You should discuss your choice of implementation tools - programming language, compilers, database management system, program development environment, etc.Some example sub-sections may be as follows, but the specific sections are for you to define.
+% You should concentrate on the more important aspects of the design.
+% It is essential that an overview is presented before going into detail.
+% As well as describing the design adopted it must also explain what other designs were considered and why they were rejected.
+% The design should describe what you expected to do, and might also explain areas that you had to revise after some investigation.
+% Typically, for an object-oriented design, the discussion will focus on the choice of objects and classes and the allocation of methods to classes.
+% The use made of reusable components should be described and their source referenced.
+% Particularly important decisions concerning data structures usually affect the architecture of a system and so should be described here.
+% How much material you include on detailed design and implementation will depend very much on the nature of the project.
+% It should not be padded out. Think about the significant aspects of your system.
+% For example, describe the design of the user interface if it is a critical aspect of your system, or provide detail about methods and data structures that are not trivial.
+% Do not spend time on long lists of trivial items and repetitive descriptions.
+% If in doubt about what is appropriate, speak to your supervisor.
+% You should also identify any support tools that you used.
+% You should discuss your choice of implementation tools - programming language, compilers, database management system, program development environment, etc.
+% Some example sub-sections may be as follows, but the specific sections are for you to define.
 
 \section{Overall architecture}
 \paragraph{}
-This project had the limitation of having to use ROS\cite{ROS} and therefore has to be designed with the different parts of the system as different nodes. Details on node designs and interactions are provided below. The general design is to have 3 separate nodes which interact with each other. These 3 nodes include a recording node which records the path driven by the robot, a model matching node which matches what the robot LIDAR senses in real time with the data which the recording node gathered and a driving node that takes the resulting match and turns it into driving instructions for the robot.
+This project had to use ROS\cite{ROS} due to the large robots using this system exclusively and therefore has to be designed with the different parts of the system as different nodes. Details on node designs and interactions are provided below. The general design is to have three separate nodes which interact with each other. These three nodes include a recording node which records the path driven by the robot, a model matching node which matches what the robot LIDAR senses in real time with the data which the recording node gathered and a driving node that takes the resulting match and turns it into driving instructions for the robot.
 \paragraph{}
 Due to the fact that ICP can be implemented in many ways which affect the speed and accuracy of the match, a pre-existing ICP library is to be used to make the model matching more consistent. Tests were devised and used on a few different ICP libraries to find the best and most customisable library which is explained in the testing section.
 \paragraph{}
@@ -19,7 +33,7 @@ Extra helper scripts are needed to drive the robot and manually control which mo
 
 \section{Tools}
 \paragraph{}
-The major tools that will be used for this project include ROS\cite{ROS} for running the software on the robot, Gazebo\cite{Gazebo} for simulating the test environment, MRPT\cite{Blanco-Claraco2019} for its ICP library\cite{MRPT-ICP}, catkin for compilation and TODO: think of more
+The major tools that will be used for this project include ROS\cite{ROS} for running the software on the robot, Gazebo\cite{Gazebo} for simulating the test environment, MRPT\cite{Blanco-Claraco2019} for its ICP library\cite{MRPT-ICP}, catkin\cite{CATKIN} for compilation and TODO: think of more
 % \begin{itemize}
 %   \item ROS
 %   \item MRPT for ICP library
@@ -28,7 +42,7 @@ The major tools that will be used for this project include ROS\cite{ROS} for run
 
 \section{Languages}
 \paragraph{}
-When using ROS, the 2 main languages that can be used are Python and C++. Python is easy to use and quick to get running but may take some time with processing whereas C++ is more difficult to use but is more efficient with its processing. C++ is therefore going to be used for the nodes that needed to run at maximum efficiency such as the ICP model matching and the Automatic Driving node and Python is to be used for all the helper scripts and any early prototyping.
+When using ROS, the two main languages that can be used are Python and C++. Python is easy to use and quick to get running but may take some time with processing whereas C++ is more difficult to use but is more efficient with its processing. C++ is therefore going to be used for the nodes that needed to run at maximum efficiency such as the ICP model matching and the Automatic Driving node and Python is to be used for all the helper scripts and any early prototyping.
 
 \section{Detailed node designs and interactions}
 Here is the original detailed node designed as planned from the start. These nodes and interactions can be visualised in a diagram as shown in figure TODO.
@@ -50,7 +64,7 @@ After recording the full path, the robot can be driven back to the original star
 
 \subsection{ICP compare node}
 \paragraph{}
-The ICP Compare node first has to load the recorded model from the file that the recording node created. When this happens, the number of lines get counted so the number of models is known and this number is published so any nodes that need this information such as the automated driving node knowing when to stop can easily get it. This node has to subscribe to the incoming LaserScan data as this will be the source data to compare against the model which was recorded. This node also subscribes to a state topic which is used to control the model snapshot that the ICP is using as its comparison data. When the node is started, the state always starts from 0 and gets changed when the subscribed state topic is changed.
+The ICP Compare node first has to load the recorded model from the file that the recording node created. When this happens, the number of lines get counted so the number of models is known and this number is published so any nodes that need this information such as the automated driving node knowing when to stop can easily get it. This node has to subscribe to the incoming LaserScan data as this will be the source data to compare against the model which was recorded. This node also subscribes to a state topic which is used to control the model snapshot that the ICP is using as its comparison data. When the node is started, the state always starts from the first state, with that being 0, and gets changed when the subscribed state topic is changed.
 \paragraph{}
 When the robot publishes the LaserScan data from the front LIDAR, the distance data gets extracted and used as the source to compare against the model with ICP. The ICP algorithm is implemented using MRPT's 2D ICP library which has been tested to be fast enough to process the data in real time. More information about this testing is in the Testing chapter.
 % TODO: Other libraries were looked at. NEED TO ADD EARLIER SECTION ABOUT THIS.
@@ -88,13 +102,13 @@ The automated driving node will subscribe to the ICP direction topic so when the
 
 \section{Messages}
 \paragraph{}
-There are 3 main messages that the system will make use of. The first is the Laserscan message from the built in ROS sensor\_msgs. This message contains a lot of different information but the only part needed for this system are the ranges in which the LIDAR can see and therefore this information gets extracted from the message and either recorded in the recording node or used as the incoming source data for the ICP node.
+There are three main messages that the system will make use of. The first is the Laserscan message from the built in ROS sensor\_msgs. This message contains a lot of different information but the only part needed for this system are the ranges in which the LIDAR can see and therefore this information gets extracted from the message and either recorded in the recording node or used as the incoming source data for the ICP node.
 \paragraph{}
-The second message is a custom message that was made for this system. It will be named ICP\_direction and it will contains 3 floats, one for the x distance, one for the y distance and one for the angle. This message will get created every time the source laserdata gets compared to the current model and is sent to the automated driving node to be turned into driving instructions.
+The second message is a custom message that was made for this system. It will be named ICP\_direction and it will contains three floats, one for the x distance, one for the y distance and one for the angle. This message will get created every time the source laserdata gets compared to the current model and is sent to the automated driving node to be turned into driving instructions.
 \paragraph{}
-The last message is used for controlling the movement of the robbot. There are 2 different messages that can be used, the main one being the standard cmd\_vel messages which should work on all robots regardless of steering method. The other message is named double\_ackermann and is used for double ackermann steering exclusively which idris uses. Because cmd\_vel messages are more general purpose and the fact that this system is meant to work on a variety of robots, cmd\_vel messages should be the main way to control robots in this system. Double\_ackermann messages can still be used, but they are the less preferred way of using the system.
+The last message is used for controlling the movement of the robbot. There are two different messages that can be used, the main one being the standard cmd\_vel messages which should work on all robots regardless of steering method. The other message is named double\_ackermann and is used for double ackermann steering exclusively which idris uses. Because cmd\_vel messages are more general purpose and the fact that this system is meant to work on a variety of robots, cmd\_vel messages should be the main way to control robots in this system. Double\_ackermann messages can still be used, but they are the less preferred way of using the system.
 \paragraph{}
-The structure of all 3 of these messages is shown in figure TODO.
+The structure of all three of these messages is shown in figure TODO.
 
 % \begin{itemize}
 %   \item Laserscan Message

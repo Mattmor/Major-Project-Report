@@ -8,7 +8,7 @@
 \section{Issues}
 \subsection{ICP library}
 \paragraph{}
-The ICP library from MRPT has options that can change how well the source fit the model and these options needed to be tuned before ICP gave a good result all the time. The example provided in the documentation for the library suggests certain settings to get a good result but these settings weren't outputting a result every time. These settings therefore had to be changed. The issue with changing the settings was that there were only 3 of the 10+ possible settings documented on what they do. The thresholdDist, thresholdAng and corresponding\_points\_decimation settings are well documented and therefore are easily changeable. Other options from the ICP library had to be fiddled with to figure out what they changed and this took a while. Once it was known what effect the option has on the algorithm, a comment was put along where the option was being set explaining what the option did.
+The ICP library from MRPT has options that can change how well the source fit the model and these options needed to be tuned before ICP gave a good result all the time. The example provided in the documentation for the library suggests certain settings to get a good result but these settings weren't outputting a result every time. These settings therefore had to be changed. The issue with changing the settings was that there were only three of the over ten possible settings documented on what they do. The thresholdDist, thresholdAng and corresponding\_ points\_ decimation settings are well documented and therefore are easily changeable. Other options from the ICP library had to be fiddled with to figure out what they changed and this took a while. Once it was known what effect the option has on the algorithm, a comment was put along where the option was being set explaining what the option did.
 
 \subsection{ICP memory}
 \paragraph{}
@@ -37,7 +37,7 @@ The controllers used for idris in gazebosim aren't included in the default ROS i
 \section{Easier than expected}
 \subsection{Recoding lasersensor data}
 \paragraph{}
-The recording node had to take snapshots of the lasersensor data at specific intervals. At the start this was just done on a timer which recorded a snapshot every 2 seconds. This wasn't a very good way of deciding when to take snapshots because the robot could be stationary during the 2 seconds and then the snapshots would be extremely similar. The solution to this was to take snapshots based on the distance travelled. This was easier to implement than expected because only the timer needed to be modified and a distance variable added. The calculation for tracking distance is the time taken since last movement message sent multiplied by the speed in meters per second of the last movement message. The result gets added to a distance variable and when this distance variable goes over a specified value in meters, a snapshot is taken. This worked first time which is why it was easier than expected.
+The recording node had to take snapshots of the lasersensor data at specific intervals. At the start this was just done on a timer which recorded a snapshot every two seconds. This wasn't a very good way of deciding when to take snapshots because the robot could be stationary during the two seconds and then the snapshots would be extremely similar. The solution to this was to take snapshots based on the distance travelled. This was easier to implement than expected because only the timer needed to be modified and a distance variable added. The calculation for tracking distance is the time taken since last movement message sent multiplied by the speed in meters per second of the last movement message. The result gets added to a distance variable and when this distance variable goes over a specified value in meters, a snapshot is taken. This worked first time which is why it was easier than expected.
 
 \subsection{Additional Scripts}
 \paragraph{}
@@ -65,9 +65,6 @@ The starting angle is very important in whether the system can successfully driv
 \paragraph{}
 The incoming laserscan data gets filtered so that it only looks at the middle 80 degrees and only up to 10 meters. This is because the van is likely to be closer than 10 meters and directly in front of the robot. This was implemented to help the ICP matching find a clear match and make sensor recordings more generalised so the same recording could be used multiple times in a mostly static environment. This change however, contributed to the starting angle limitation because it limited the amount of data the matching algorithm had to get a clear match when not completely aligned.
 
-\section{Review against the requirements}
-\paragraph{}
-TODO
 % TODO: WITH THE EVALATION
 % That brings the list of objectives to: The ICP Model matching program, The recording model program, The robot control program and simulated test environment with models to scale.
 

@@ -1,9 +1,26 @@
 \chapter{Evaluation}
 
 % Examiners expect to find a section addressing questions such as:
-\section{Requirements}
+\section{Review against the requirements}
 \paragraph{}
-The requirements for this system were correctly identified at the beginning. The system needed to be able to automatically drive into the van and in doing so, a specific set of patterns can be detected with use of the LIDAR.
+The requirements for this system were correctly identified at the beginning however, they did need to be expanded upon.The system needed to be able to record a path and then follow the same path as closely as possible. The following requirements were identified at the beginning:
+\begin{itemize}
+  \item The ICP Model matching program.
+  \item The recording model program.
+  \item The robot control program.
+  \item Simulated test environment with models to scale.
+\end{itemize}
+The system successfully does this well but there are some limitations as discussed above. The list of requirements includes an ICP model matching program which has been created and works, a recording model program that can record a path which has been created and works, a robot controlling program that follows the recorded model as closely as possible which has also been created and works and finally a simulated test environment with real world scale model which has also been created and used for testing.
+
+\section{Methodology}
+\paragraph{}
+The methodology used for this project was agile sprints. This was a good way to structure the project due to it being a system that uses real world hardware and sensors which needed the ability to quickly adapt and change parts of the original design. Due to this project using sprints, the system was improved in small iterations rather than large changes and this helped the system become more stable by building upon the previous sprints work.
+
+\paragraph{}
+Due to this project being an individual person project, keeping a written and accurate track of issues was a difficult task which was often neglected and forgotten about. This had to be revised every two to three weeks to make sure tasks and issues weren't being missed.
+
+\paragraph{}
+Dispite the issues and tasks which were difficult to remember to keep a track of due to this project being an individual project, using a form of agile was a good decicison as it enabled the project to be changed and built upon rapidly each week. This methodology helped the project progress as a whole and the project would not be as complete without it.
 
 \section{Design}
 \paragraph{}
@@ -23,7 +40,7 @@ The tools that were used were suitable for this project however, a few extra too
 
 \subsection{ROS path planning}
 \paragraph{}
-Possible tools that would have helped include using the ROS navigation stack to plan a path to the target location. This would have saved a lot of time in trying to get the robot steering to match the direction that the ICP algorithm was returning. It also would have resulted in a likely better coping system with misalignment and bad positioning due to turning the steering into a deliberative system which can react to errors rather than a fully reactive system.
+Possible tools that would have helped include using the ROS navigation stack\cite{ROS-NAV} to plan a path to the target location. This would have saved a lot of time in trying to get the robot steering to match the direction that the ICP algorithm was returning. It also would have resulted in a likely better coping system with misalignment and bad positioning due to turning the steering into a deliberative system which can react to errors rather than a fully reactive system.
 
 \subsection{Visualisation of the data}
 \paragraph{}
@@ -31,7 +48,11 @@ A tool that would have also helped would have been some sort of tool to visualis
 
 \section{Testing}
 \paragraph{}
-The testing for this system has been thorough. None of the testing is automated but this is difficult to accomplish when working with a fully reactive robotic system. Tests were always ran multiple times to make sure the result is always reliable.
+The testing for this system has been thorough. None of the testing is automated but this is difficult to accomplish when working with a fully reactive robotic system. Tests were always ran multiple times to make sure the result is always reliable. Using testing harnesses and also recording the robot position in the simulator would have helped make the testing more thorough. These two types of testing would have also helped improve the development by giving clear results wheather changes improved the system or made it worse. With more time, these extra types of testing would be implemented and if starting again, implementing these first would be a priority.
+
+\section{Personal performance}
+\paragraph{}
+Developing the system went fairly well. There were some minor roadblocks such as importing libraries through CMake and getting the direction converted into movement messages which took multiple weeks to figure out. More planning and research should have gone into control strategies to make working out the movement easier. If the project was started again, more time would need to be spent on setting up testing harnesses before creating the system so when the system is being modified, there is useful feedback that can be used to improve the system. Implemeting and testing the ICP node was done well and was likely the most thought out and researched part of the whole project. The recording node was suprisingly easy to make and was expected to take a lot more time to get working. The extra scripts that were made are very useful in improving the quality of life for the system and the state changing script was fairly useful for debugging the system even though more thorough testing would have been better. Overall the project went well with the recording data node, ICP node and extra scripts being the good parts and the automated driving node and testing should have had more time spent researching and developing.
 
 \section{Project aims}
 \paragraph{}
